@@ -1,0 +1,16 @@
+wire_colors:
+  red:
+    - [0, 100, 100]      # Lower bound of red
+    - [10, 255, 255]     # Upper bound of red
+  blue:
+    - [110, 100, 100]    # Lower bound of blue
+    - [130, 255, 255]    # Upper bound of blue
+  green:
+    - [50, 100, 100]     # Lower bound of green
+    - [70, 255, 255]     # Upper bound of green
+  yellow:
+    - [25, 100, 100]     # Lower bound of yellow
+    - [35, 255, 255]     # Upper bound of yellow
+grid_params:
+  rows: 30
+  cols: 10
