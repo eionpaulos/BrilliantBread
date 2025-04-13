@@ -1,0 +1,11 @@
+{
+  "components": [
+    { "id": "R1", "type": "resistor", "value": "100 Ohm" },
+    { "id": "C1", "type": "capacitor", "value": "10uF" },
+    { "id": "LED1", "type": "led", "value": null }
+  ],
+  "connections": [
+    ["R1", "C1"],
+    ["C1", "LED1"]
+  ]
+}
