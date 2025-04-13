@@ -94,26 +94,3 @@ If you don't know the value, use '3Ω' for resistors and 'Default' for LEDs.
             "error": "Failed to parse JSON response",
             "raw_response": response.text
         }
-
-
-result = process_image_for_json(
-    image_path="randcreate.jpg",
-    json_schema={
-        "type": "object",
-        "properties": {
-            "resistors": {"type": "integer"},
-            "resistor_value": {"type": "string"},
-            "leds": {"type": "integer"},
-            "led_colors": {
-                "type": "array",
-                "items": {"type": "string"}
-            },
-            "grounding": {"type": "boolean"}
-        },
-        "required": ["resistors", "resistor_value", "leds", "led_colors", "grounding"]
-    },
-    # replace with your Gemini API key
-    api_key=""
-)
-
-print(result)
