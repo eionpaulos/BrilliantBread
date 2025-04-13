@@ -1,3 +1,6 @@
 google-generativeai
 networkx
 python-dotenv
+fastapi
+pillow
+uvicorn
