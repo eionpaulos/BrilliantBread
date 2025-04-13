@@ -65,6 +65,7 @@ Generate a JSON response similar to this one:
   "grounding": true
 }
 Grounding is always true.
+If there are no resistors or LEDs, set the value to 0.
 The values of resistors and LEDs are always in Ohms and colors respectively.
 If you don't know the value, use '3Ω' for resistors and 'Default' for LEDs.
 """
