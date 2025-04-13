@@ -51,6 +51,15 @@
   --sidebar-ring: oklch(0.704 0.04 256.788);
 }
 
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
