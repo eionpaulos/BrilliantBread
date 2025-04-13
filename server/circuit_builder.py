@@ -13,6 +13,8 @@ ENV_PATH = os.path.join(ROOT_DIR, '.env')
 DATA_PATH = os.path.join(ROOT_DIR, 'data', 'sample_circuit_info.json')
 
 # Initialize Gemini API with key in .env
+
+
 def initialize_api():
     print(f"Loading .env from: {os.path.abspath(ENV_PATH)}")
     load_dotenv(ENV_PATH)
@@ -23,6 +25,8 @@ def initialize_api():
     genai.configure(api_key=api_key)
 
 # Load circuit data from JSON file
+
+
 def circuit_data() -> Dict[str, Any]:
     try:
         with open(DATA_PATH, 'r') as file:
@@ -31,6 +35,8 @@ def circuit_data() -> Dict[str, Any]:
         raise FileNotFoundError(f"Circuit data not found at {DATA_PATH}")
 
 # Build NetworkX graph from circuit data
+
+
 def build_graph(data: Dict[str, Any]) -> nx.Graph:
     graph = nx.Graph()
     for comp in data['components']:
@@ -40,22 +46,29 @@ def build_graph(data: Dict[str, Any]) -> nx.Graph:
     return graph
 
 # Convert graph to text description
+
+
 def describe_graph(graph: nx.Graph) -> str:
     description = []
     for node, attrs in graph.nodes(data=True):
-        description.append(f"{node} is a {attrs['type']} with value {attrs['value']}")
+        description.append(
+            f"{node} is a {attrs['type']} with value {attrs['value']}")
     description.append("\nConnections:")
     for u, v in graph.edges():
         description.append(f"{u} is connected to {v}")
     return "\n".join(description)
 
 # Generate circuit analysis using Gemini AI
+
+
 def analyze_circuit(prompt: str) -> str:
     model = genai.GenerativeModel(model_name='models/gemini-2.0-flash')
     response = model.generate_content(prompt)
     return response.text
 
 # Main function to execute the pipeline
+
+
 def main() -> None:
     try:
         initialize_api()
@@ -77,6 +90,7 @@ def main() -> None:
 
     except Exception as e:
         print(f"Error: {str(e)}")
+
 
 if __name__ == "__main__":
     main()
