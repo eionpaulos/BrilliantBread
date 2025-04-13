@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from PIL import Image
 from dotenv import load_dotenv
 
-from utils import process_image_for_json, create_circuit_diagram
+from utils import process_image_for_json, create_circuit_diagram, circuit_analysis
 
 load_dotenv()
 
@@ -41,10 +41,11 @@ async def upload_image(file: UploadFile = File(...)):
         contents = await file.read()
         image = Image.open(io.BytesIO(contents))
 
-        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        file_extension = os.path.splitext(
-            file.filename)[1] if '.' in file.filename else '.png'
-        image_filename = f'{timestamp}{file_extension}'
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        file_extension = (
+            os.path.splitext(file.filename)[1] if "." in file.filename else ".png"
+        )
+        image_filename = f"{timestamp}{file_extension}"
         image_path = os.path.join(data_dir, image_filename)
 
         image.save(image_path)
@@ -57,34 +58,40 @@ async def upload_image(file: UploadFile = File(...)):
                     "resistors": {"type": "integer"},
                     "resistor_value": {"type": "string"},
                     "leds": {"type": "integer"},
-                    "led_colors": {
-                        "type": "array",
-                        "items": {"type": "string"}
-                    },
-                    "grounding": {"type": "boolean"}
+                    "led_colors": {"type": "array", "items": {"type": "string"}},
+                    "grounding": {"type": "boolean"},
                 },
-                "required": ["resistors", "resistor_value", "leds", "led_colors", "grounding"]
+                "required": [
+                    "resistors",
+                    "resistor_value",
+                    "leds",
+                    "led_colors",
+                    "grounding",
+                ],
             },
-            api_key=GEMINI_API_KEY
+            api_key=GEMINI_API_KEY,
         )
 
         json_data = json.dumps(analysis_result)
         circuit_diagram_path = create_circuit_diagram(json_data)
         diagram_filename = os.path.basename(circuit_diagram_path)
-
-        return JSONResponse(content={
-            "success": True,
-            "message": "Image uploaded and processed successfully.",
-            "analysis_result": analysis_result,
-            "circuit_diagram": diagram_filename,
-            "diagram_path": circuit_diagram_path
-        })
+        circuit_analysis_summary = circuit_analysis(json_data)
+        print(circuit_analysis_summary)
+        return JSONResponse(
+            content={
+                "success": True,
+                "message": "Image uploaded and processed successfully.",
+                "analysis_result": analysis_result,
+                "circuit_analysis": circuit_analysis_summary,
+                "circuit_diagram": diagram_filename,
+                "diagram_path": circuit_diagram_path,
+            }
+        )
 
     except Exception as e:
-        return JSONResponse(status_code=500, content={
-            "success": False,
-            "error": str(e)
-        })
+        return JSONResponse(
+            status_code=500, content={"success": False, "error": str(e)}
+        )
 
 
 @app.get("/diagrams/{filename}")
@@ -93,6 +100,5 @@ async def get_diagram(filename: str):
     if os.path.exists(file_path):
         return FileResponse(file_path)
     return JSONResponse(
-        status_code=404,
-        content={"message": f"Diagram {filename} not found"}
+        status_code=404, content={"message": f"Diagram {filename} not found"}
     )

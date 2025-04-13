@@ -10,30 +10,31 @@ from typing import Dict, Any, Optional
 
 def create_circuit_diagram(json_data):
     data = json.loads(json_data)
-    d = schemdraw.Drawing(show=False, config={
-                          'orientation': 'horizontal', 'bgcolor': 'white'})
+    d = schemdraw.Drawing(
+        show=False, config={"orientation": "horizontal", "bgcolor": "white"}
+    )
     d += elm.Battery(label="9V Battery")
 
-    num_resistors = data.get('resistors', 0)
-    resistor_value = data.get('resistor_value', '5Ω')
+    num_resistors = data.get("resistors", 0)
+    resistor_value = data.get("resistor_value", "5Ω")
     for i in range(num_resistors):
-        d += elm.Resistor(label=f"R{i+1} ({resistor_value})")
+        d += elm.Resistor(label=f"R{i + 1} ({resistor_value})")
 
-    num_leds = data.get('leds', 0)
-    led_colors = data.get('led_colors', [])
+    num_leds = data.get("leds", 0)
+    led_colors = data.get("led_colors", [])
     for i in range(num_leds):
-        color = led_colors[i] if i < len(led_colors) else 'Default'
-        d += elm.LED(label=f"LED{i+1} ({color})")
+        color = led_colors[i] if i < len(led_colors) else "Default"
+        d += elm.LED(label=f"LED{i + 1} ({color})")
 
-    if data.get('grounding', False):
+    if data.get("grounding", False):
         d += elm.Ground()
 
     results_dir = "results"
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
 
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f'{timestamp}.svg'
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{timestamp}.svg"
     filepath = os.path.join(results_dir, filename)
     d.save(filepath)
     return filepath
@@ -43,7 +44,7 @@ def process_image_for_json(
     image_path: str,
     json_schema: Dict[str, Any],
     api_key: Optional[str] = None,
-    model: str = "gemini-2.0-flash"
+    model: str = "gemini-2.0-flash",
 ) -> Dict[str, Any]:
     if api_key:
         genai.configure(api_key=api_key)
@@ -75,23 +76,39 @@ If you don't know the value, use '3Ω' for resistors and 'Default' for LEDs.
 
     # Pass the response_schema as part of the generation_config dictionary.
     response = model_instance.generate_content(
-        [
-            instructions,
-            {
-                "mime_type": mime_type,
-                "data": encoded_image
-            }
-        ],
+        [instructions, {"mime_type": mime_type, "data": encoded_image}],
         generation_config={
             "response_mime_type": "application/json",
-            "response_schema": json_schema
-        }
+            "response_schema": json_schema,
+        },
     )
 
     try:
         return json.loads(response.text)
     except json.JSONDecodeError:
-        return {
-            "error": "Failed to parse JSON response",
-            "raw_response": response.text
-        }
+        return {"error": "Failed to parse JSON response", "raw_response": response.text}
+
+
+def circuit_analysis(json_data: str) -> str:
+    data = json.loads(json_data)
+    prompt = f"""
+You are an electrical engineering expert. Please analyze this circuit and provide:
+1. A detailed explanation of how the circuit works
+2. The purpose and function of each component
+3. Any safety considerations
+4. Expected behavior when powered
+
+The circuit contains:
+- Resistors: {data.get("resistors", 0)}
+- Resistor Value: {data.get("resistor_value", "3Ω")}
+- LEDs: {data.get("leds", 0)}
+- LED Colors: {", ".join(data.get("led_colors", []))}
+- Grounding: {data.get("grounding", True)}
+
+Just give me your analysis don't tell me that you are complying or anything like that.
+I don't want any disclaimers or anything like that.
+"""
+
+    model = genai.GenerativeModel(model_name="models/gemini-2.0-flash")
+    response = model.generate_content(prompt)
+    return response.text

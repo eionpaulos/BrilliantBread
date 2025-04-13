@@ -3,6 +3,7 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Upload, Zap, FileImage, Save, ArrowLeft } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 
 // API base URL
 const API_BASE_URL = "http://127.0.0.1:8000";
@@ -69,11 +70,11 @@ function App() {
       );
 
       // Extract the data from the response
-      const { success, analysis_result, circuit_diagram } = response.data;
+      const { success, analysis_result, circuit_diagram, circuit_analysis } = response.data;
 
       if (success) {
         // Set the analysis result
-        setAnalysisResult(JSON.stringify(analysis_result, null, 2));
+        setAnalysisResult(circuit_analysis)
 
         // Set the diagram information
         setGeneratedDiagram(circuit_diagram);
@@ -89,7 +90,7 @@ function App() {
       console.error("Error analyzing image:", err);
       setError(
         (axios.isAxiosError(err) && err.response?.data?.error) ||
-          "An error occurred while analyzing the image"
+        "An error occurred while analyzing the image"
       );
     } finally {
       setIsAnalyzing(false);
@@ -340,8 +341,9 @@ function App() {
                   </p>
                 </div>
               ) : analysisResult ? (
-                <div className="text-gray-700 p-2 whitespace-pre-wrap font-mono text-sm">
-                  {analysisResult}
+                <div className="prose prose-sm max-w-none text-gray-700">
+                  {/* Convert the plain text to markdown rendered content */}
+                  <ReactMarkdown>{analysisResult}</ReactMarkdown>
                 </div>
               ) : (
                 <div className="text-gray-400 text-center p-8">
